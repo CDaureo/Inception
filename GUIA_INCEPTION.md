@@ -1,5 +1,58 @@
 # Inception: guía desde cero, trabajo en casa y traslado a 42
 
+## Mi progreso y dónde continuar
+
+**Última revisión: 3 de noviembre de 2026.** Estado comprobado leyendo los archivos del repositorio. No se ha arrancado Docker ni comprobado la VM en esta revisión.
+
+**Punto de continuación: corregir las exclusiones de Git (sección 8) y comprobar MariaDB (sección 9). Después, empezar WordPress y PHP-FPM (sección 10).**
+
+Leyenda: `[x]` significa que esa tarea concreta está hecha en los archivos; `[ ]` significa pendiente o todavía sin verificar. Tener un servicio escrito no significa que esté probado. Las casillas de la sección 2 siguen siendo la comprobación final de la infraestructura completa.
+
+### Lo que ya tengo hecho
+
+- [x] Repositorio Git independiente de Inception creado.
+- [x] Estructura de MariaDB creada con carpetas `conf/` y `tools/`.
+- [x] Archivo local `srcs/.env` y cuatro archivos de contraseñas en `secrets/` creados; falta excluirlos de Git.
+- [x] Plantilla de variables creada en `srcs/.env.carpeta/example`; falta situarla en `srcs/.env.example` y revisar que solo contenga ejemplos.
+- [x] Dockerfile propio de MariaDB escrito con base `debian:bookworm`, instalación del servidor y entrypoint.
+- [x] Configuración `50-server.cnf` escrita para escuchar en la red del contenedor en el puerto 3306.
+- [x] Script de MariaDB escrito: validación de variables y secretos, inicialización, servidor temporal, creación de base y usuario, marca de inicialización y arranque final con `exec`.
+- [x] Compose inicial escrito para construir `mariadb:inception`, pasar variables y montar los dos secretos de base de datos.
+- [x] Volumen con nombre `database` y red `inception` declarados y asignados a MariaDB, sin publicar 3306 al host.
+- [x] Política `restart: on-failure` declarada para MariaDB.
+
+### Próxima sesión: seguir este orden
+
+1. [ ] **Corregir Git — secciones 8 y 17.** `.gitignore` está vacío y Git ya rastrea `srcs/.env` y los cuatro archivos de `secrets/`. Añadir las exclusiones de la sección 8 y retirar esos archivos del índice conservando las copias locales (`git rm --cached -- srcs/.env secrets/*.txt`). Comprobar con `git ls-files srcs/.env secrets` que ya no aparecen. Esto no elimina versiones anteriores del historial; si las contraseñas se publicaron, cambiarlas y tratar su presencia en el historial.
+2. [ ] **Ordenar la plantilla — sección 8.** Colocar la plantilla en `srcs/.env.example`, con valores de ejemplo y sin contraseñas reales.
+3. [ ] **Confirmar el entorno — secciones 4 a 6.** Verificar que trabajas dentro de la VM, que Docker y Compose funcionan y que el almacenamiento está bajo `/home/tu_login/data`. No cambiar `data-root` sin revisar primero si ya hay datos.
+4. [ ] **Validar y arrancar MariaDB — sección 9.** Desde la raíz del repositorio y dentro de la VM, ejecutar los comandos de abajo. Revisar que el servidor queda listo y no entra en un ciclo de reinicios.
+5. [ ] **Comprobar MariaDB antes de avanzar.** Verificar acceso con el usuario SQL a su base, permisos, persistencia tras recrear el contenedor sin borrar el volumen y arranque repetido sin reinicializar datos. Anotar el resultado.
+6. [ ] **Empezar WordPress + PHP-FPM — sección 10.** Crear su Dockerfile, configuración y script de instalación; después añadir el servicio y el volumen web a Compose.
+
+Comandos para el paso 4 (todavía no hay Makefile):
+
+```bash
+sudo docker compose --env-file srcs/.env -f srcs/docker-compose.yml config --quiet
+sudo docker compose --env-file srcs/.env -f srcs/docker-compose.yml up -d --build mariadb
+sudo docker compose --env-file srcs/.env -f srcs/docker-compose.yml ps
+sudo docker compose --env-file srcs/.env -f srcs/docker-compose.yml logs --tail=100 mariadb
+```
+
+### Lo que queda después
+
+- [ ] NGINX, certificado TLS y acceso HTTPS — sección 11.
+- [ ] Compose completo con los tres servicios, dos volúmenes y comprobaciones de disponibilidad — sección 12.
+- [ ] Makefile — sección 13.
+- [ ] Dominio y acceso desde el navegador — sección 14.
+- [ ] Arranque de la pila completa y pruebas de usuarios, TLS, persistencia y reinicios — secciones 15 y 16.
+- [ ] `README.md`, `USER_DOC.md` y `DEV_DOC.md` — sección 21.
+- [ ] Ensayo de traslado, respaldo y restauración; evaluación en 42 — secciones 18 a 20.
+
+**Al terminar cada sesión:** marca solo las tareas comprobadas, actualiza la fecha y el punto de continuación, y anota aquí cualquier error pendiente con el siguiente paso concreto. No guardes contraseñas ni salidas que las contengan.
+
+---
+
 ## Resumen
 
 Esta guía explica cómo abordar el enunciado que has compartido, aunque todavía no conozcas Docker, servidores web o bases de datos. Es un plan de construcción y comprobación: los fragmentos ilustran piezas del proyecto, pero no constituyen una implementación completa lista para ejecutar.
@@ -754,18 +807,20 @@ El texto proporcionado exige inglés para el README; no especifica el idioma de 
 
 ### 24. Orden de trabajo sugerido
 
-1. Entender arquitectura y confirmar condiciones del campus.
-2. Crear VM e instalar herramientas.
-3. Resolver almacenamiento y configurar Docker.
-4. Crear repositorio, exclusiones y variables.
-5. Construir y comprobar MariaDB.
-6. Añadir WordPress y PHP-FPM.
-7. Añadir NGINX, TLS y dominio.
-8. Completar Compose, Makefile y healthchecks.
-9. Probar persistencia, fallos y arranques repetidos.
-10. Documentar lo que realmente funciona.
-11. Ensayar un traslado y una restauración.
-12. Repetir la evaluación completa en el entorno de 42.
+El estado detallado y el punto de continuación están al principio de esta guía. Esta lista resume las fases completas; una fase iniciada sigue sin marcar hasta terminar sus comprobaciones.
+
+- [ ] Entender arquitectura y confirmar condiciones del campus — por confirmar.
+- [ ] Crear VM e instalar herramientas — por verificar en la VM.
+- [ ] Resolver almacenamiento y configurar Docker — por verificar en la VM.
+- [ ] Crear repositorio, exclusiones y variables — iniciado: repositorio y archivos creados; falta corregir Git y ordenar la plantilla.
+- [ ] Construir y comprobar MariaDB — implementación escrita; construcción y pruebas pendientes de verificar.
+- [ ] Añadir WordPress y PHP-FPM.
+- [ ] Añadir NGINX, TLS y dominio.
+- [ ] Completar Compose, Makefile y healthchecks — Compose de MariaDB ya escrito.
+- [ ] Probar persistencia, fallos y arranques repetidos.
+- [ ] Documentar lo que realmente funciona.
+- [ ] Ensayar un traslado y una restauración.
+- [ ] Repetir la evaluación completa en el entorno de 42.
 
 No pases a la siguiente capa si no puedes explicar y comprobar la anterior. Haber conseguido una página en el navegador no demuestra todavía todos los requisitos.
 
