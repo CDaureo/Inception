@@ -1,0 +1,41 @@
+server {
+    listen 443 ssl;
+    server_name ${DOMAIN_NAME};
+
+    root /var/www/html;
+    index index.php index.html;
+
+    ssl_certificate /etc/nginx/ssl/inception.crt;
+    ssl_certificate_key /etc/nginx/ssl/inception.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    access_log /dev/stdout;
+    error_log /dev/stderr warn;
+
+    client_max_body_size 20M;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        include fastcgi_params;
+        fastcgi_pass wordpress:9000;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTPS on;
+        fastcgi_param HTTP_PROXY "";
+    }
+
+    location = /wp-config.php {
+        deny all;
+    }
+
+    location ~ /\. {
+        deny all;
+    }
+
+    location ~* ^/wp-content/uploads/.*\.php$ {
+        deny all;
+    }
+}

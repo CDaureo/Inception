@@ -1,1 +1,8 @@
+srcs/.env
+secrets/
+backups/
+*.sql
+*.sql.gz
+*.key
+*.pem
 
