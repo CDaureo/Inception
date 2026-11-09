@@ -169,8 +169,9 @@ A browser warning is expected for the self-signed certificate.
 - TLS 1.0 and 1.1 connections are rejected by the server.
 - Both named volumes reside under /home/cdaureo-/data.
 
-Backup restoration, reconstruction in a separate clean VM and
-final Git history cleanup remain to be completed.
+Backup restoration and reconstruction in the destination VM remain
+to be completed. The published history was rewritten to remove credential
+files; use a fresh clone instead of merging old local history.
 
 ## Resources
 

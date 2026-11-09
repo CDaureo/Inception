@@ -2,7 +2,7 @@ COMPOSE = sudo docker compose --env-file srcs/.env -f srcs/docker-compose.yml
 
 all: up
 
-config:
+config: setup
 	$(COMPOSE) config --quiet
 
 build: config
@@ -20,7 +20,7 @@ start:
 down:
 	$(COMPOSE) down
 setup:
-	sh tools/setup.sh
+	sh srcs/tools/setup.sh
 status:
 	$(COMPOSE) ps
 

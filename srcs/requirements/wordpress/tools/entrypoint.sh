@@ -43,7 +43,7 @@ mkdir -p "$WP_CLI_CACHE_DIR"
 chown -R www-data:www-data /var/www/.wp-cli
 
 wp_cmd() {
-    runuser -u www-data -- wp --path=/var/www/html "$@"
+    runuser -u www-data -- wp --quiet --path=/var/www/html "$@"
 }
 
 # Esperar a MariaDB con un máximo de 30 intentos.

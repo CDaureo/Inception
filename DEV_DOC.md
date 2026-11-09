@@ -62,6 +62,7 @@ Inception/
 └── srcs/
     ├── .env
     ├── docker-compose.yml
+    ├── tools/setup.sh
     └── requirements/
         ├── mariadb/
         │   ├── Dockerfile
@@ -227,7 +228,11 @@ The git ls-files command must not list sensitive files.
 
 Ignoring a file does not remove previous commits containing it.
 Previously exposed credentials have been rotated during development;
-Git history cleanup remains a separate pending operation.
+The published history has been rewritten to remove secrets/ and srcs/.env
+from reachable commits. Use a fresh clone after this rewrite; do not merge
+old local history back into the repository. Previously exposed credentials
+must remain revoked. GitHub may retain cached objects or external copies;
+contact GitHub Support if sensitive old objects remain accessible.
 
 ## Build and lifecycle commands
 
@@ -278,11 +283,12 @@ The entrypoint:
 1. Validates required variables.
 2. Prepares directories and ownership.
 3. Initializes system tables when absent.
-4. Uses a temporary server without network access for initial setup.
+4. Executes initial SQL synchronously with mariadbd --bootstrap,
+   without opening a network listener or starting a background process.
 5. Creates the WordPress database and SQL application account.
 6. Grants permissions on that database.
 7. Configures the local root password.
-8. Stops the temporary server.
+8. Waits for the bootstrap command to complete successfully.
 9. Writes /var/lib/mysql/.inception-ready.
 10. Executes mariadbd as the final foreground process.
 
@@ -412,6 +418,11 @@ commands using --prompt printed complete commands containing passwords.
 
 The installed WP-CLI version did not accept --prompt=value as a
 replacement for the positional value required by wp config set.
+
+The preparation script is srcs/tools/setup.sh. make config and make
+automatically call this script through the setup prerequisite. Existing
+configuration is preserved; missing secrets with existing project volumes
+are treated as an error rather than silently regenerated.
 
 Do not enable shell tracing or paste password-bearing output.
 
@@ -647,7 +658,19 @@ Remaining validation includes:
 - Transfer to the environment hosted on Ubuntu 22.04.
 - Final review of Git history and repository contents.
 - Final campus confirmation of the domain naming convention.
-- Verification that a fresh installation no longer logs credentials.
+
+Additional regression checks were run in isolated Docker containers on
+Ubuntu/WSL using separate volumes and generated test secrets:
+
+- Fresh MariaDB bootstrap completes without a background server.
+- SQL application and root password authentication succeed.
+- Fresh WordPress installation creates both accounts with passwords
+  matching the generated secrets.
+- Captured initialization logs do not contain generated passwords.
+- Recreating the containers preserves SQL data and the WordPress site
+  without repeating MariaDB bootstrap.
+
+These checks do not replace validation in the destination VM.
 
 ## Fresh installation from Git
 

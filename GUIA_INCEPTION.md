@@ -1,5 +1,12 @@
 # Inception: guía desde cero, trabajo en casa y traslado a 42
 
+> Actualizacion de seguridad y evaluacion (9 de noviembre de 2026): el
+> codigo y DEV_DOC.md son la referencia actual. El arranque de MariaDB usa
+> `mariadbd --bootstrap` de forma sincrona, sin procesos en segundo plano.
+> WP-CLI usa `--quiet` y la preparacion esta en `srcs/tools/setup.sh`.
+> El historial publicado se limpia de `secrets/` y `srcs/.env`; las notas
+> de progreso originales que siguen describen una sesion anterior.
+
 ## Mi progreso y dónde continuar
 
 **Última revisión: 3 de noviembre de 2026.** Estado comprobado leyendo los archivos del repositorio. No se ha arrancado Docker ni comprobado la VM en esta revisión.
@@ -324,10 +331,10 @@ El script de arranque debe:
 1. Validar variables y leer los secretos requeridos.
 2. Preparar directorios y propietario adecuados para el usuario `mysql`.
 3. Inicializar las tablas del sistema con `mariadb-install-db` únicamente si todavía no existen.
-4. Iniciar temporalmente el servidor sin acceso de red para configurar las cuentas mediante su socket local.
-5. Esperar disponibilidad con un número limitado de intentos y fallar claramente si no arranca.
+4. Ejecutar la configuracion inicial mediante `mariadbd --bootstrap` en primer plano, sin conexiones de red ni procesos en segundo plano.
+5. Comprobar el codigo de salida del bootstrap y fallar claramente si no termina correctamente.
 6. Crear la base y usuario SQL de WordPress; conceder permisos solo sobre esa base. Preparar la cuenta root según la política elegida, sin acceso remoto innecesario.
-7. Detener limpiamente ese servidor temporal y esperar su terminación.
+7. Esperar a que termine el bootstrap antes de marcar la inicializacion como completada.
 8. Arrancar el proceso definitivo en primer plano, por ejemplo con `exec mariadbd --user=mysql` y la configuración necesaria.
 
 Escapa y valida los valores introducidos en SQL: concatenar variables arbitrarias puede romper la consulta. Diseña el arranque para que un reinicio no borre la base ni sustituya cuentas existentes; una inicialización interrumpida debe poder detectarse y recuperarse.
