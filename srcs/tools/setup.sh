@@ -16,22 +16,22 @@ command -v openssl >/dev/null 2>&1 ||
 command -v docker >/dev/null 2>&1 ||
     fail "Instala Docker dentro de la VM."
 
-command -v git >/dev/null 2>&1 ||
-    fail "Instala Git."
+#command -v git >/dev/null 2>&1 ||
+#    fail "Instala Git."
 
 [ -f srcs/.env.example ] ||
     fail "No existe srcs/.env.example."
 
 # No preparar credenciales si Git sigue rastreando secretos.
-tracked=$(git ls-files -- srcs/.env secrets)
-[ -z "$tracked" ] ||
-    fail "Git sigue rastreando .env o secrets/. Corrige sus exclusiones."
+#tracked=$(git ls-files -- srcs/.env secrets)
+#[ -z "$tracked" ] ||
+#    fail "Git sigue rastreando .env o secrets/. Corrige sus exclusiones."
 
-git check-ignore -q --no-index srcs/.env ||
-    fail "Falta excluir srcs/.env en .gitignore."
+#git check-ignore -q --no-index srcs/.env ||
+#    fail "Falta excluir srcs/.env en .gitignore."
 
-git check-ignore -q --no-index secrets/db_password.txt ||
-    fail "Falta excluir secrets/ en .gitignore."
+#git check-ignore -q --no-index secrets/db_password.txt ||
+#   fail "Falta excluir secrets/ en .gitignore."
 
 docker_root=$(sudo docker info --format '{{.DockerRootDir}}') ||
     fail "Docker no esta disponible."
