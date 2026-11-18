@@ -49,6 +49,10 @@ sudo docker compose version
 
 The Makefile uses sudo docker. Administrative access is required.
 
+##Shared Folder
+Enter has root 
+if there's no mount do : ```sudo mount -t vboxsf "Name of PC folder" "path to the VM"```
+
 ## Repository structure
 
 ```text
