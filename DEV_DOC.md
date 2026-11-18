@@ -116,6 +116,11 @@ The named volumes are:
 - inception_database
 - inception_website
 
+Delete volumes:
+
+```bash
+sudo docker volume rm inception_database inception_website
+```
 Inspect their actual locations and options:
 
 ```bash
